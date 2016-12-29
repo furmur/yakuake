@@ -1,0 +1,42 @@
+Source: yakuake
+Section: kde
+Priority: optional
+Maintainer: Debian KDE Extras Team <pkg-kde-extras@lists.alioth.debian.org>
+Uploaders: Lisandro Damián Nicanor Pérez Meyer <lisandro@debian.org>
+Build-Depends: cmake,
+               debhelper (>= 9),
+               extra-cmake-modules,
+               kio-dev,
+               libkf5archive-dev,
+               libkf5config-dev,
+               libkf5coreaddons-dev,
+               libkf5crash-dev,
+               libkf5dbusaddons-dev,
+               libkf5globalaccel-dev,
+               libkf5i18n-dev,
+               libkf5iconthemes-dev,
+               libkf5newstuff-dev,
+               libkf5notifications-dev,
+               libkf5notifyconfig-dev,
+               libkf5parts-dev,
+               libkf5widgetsaddons-dev,
+               libkf5windowsystem-dev,
+               libqt5x11extras5-dev,
+               pkg-kde-tools (>= 0.4.2),
+               qtbase5-dev
+Standards-Version: 3.9.7
+Homepage: https://www.kde.org/applications/system/yakuake/
+Vcs-Git: git://anonscm.debian.org/pkg-kde/kde-extras/yakuake.git
+Vcs-Browser: https://anonscm.debian.org/cgit/pkg-kde/kde-extras/yakuake.git/
+
+Package: yakuake
+Architecture: any
+Depends: konsole-kpart, ${misc:Depends}, ${shlibs:Depends}
+Description: Quake-style terminal emulator based on KDE Konsole technology
+ YaKuake is inspired from the terminal in the Quake game: when you press a key
+ (by default F12, but that can be changed) a terminal window slides down from
+ the top of the screen. Press the key again, and the terminal slides back.
+ .
+ It is faster than a keyboard shortcut because it is already loaded into memory
+ and as such is very useful to anyone who frequently finds themselves switching
+ in and out of terminal sessions.

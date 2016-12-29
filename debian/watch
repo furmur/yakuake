@@ -1,0 +1,2 @@
+version=3
+http://download.kde.org/stable/yakuake/([\d\.]*)/src/yakuake-([^-]*)\.tar.xz
