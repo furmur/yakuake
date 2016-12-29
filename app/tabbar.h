@@ -37,6 +37,13 @@ class QPushButton;
 class QToolButton;
 class QLabel;
 
+struct TabGroup {
+    QList<int> tabs;
+    QString title;
+    bool locked;
+    int selected_tab;
+    TabGroup(const QString &t, bool is_locked = false);
+};
 
 class TabBar : public QWidget
 {
@@ -48,26 +55,41 @@ class TabBar : public QWidget
         ~TabBar();
 
         void applySkin();
+        void setGroupLocked(int group_id, bool locked);
 
+        void updateGroupsSettings();
+        void restoreGroupsFromSettings();
 
     public Q_SLOTS:
         void addTab(int sessionId, const QString& title);
         void removeTab(int sessionId = -1);
 
         void interactiveRename(int sessionId);
+        void interactiveGroupRename(int group_id);
 
         void selectTab(int sessionId);
         void selectNextTab();
         void selectPreviousTab();
 
+        void selectNextGroup();
+        void selectPreviousGroup();
+
         void moveTabLeft(int sessionId = -1);
         void moveTabRight(int sessionId = -1);
 
+        void moveGroupLeft(int group_id = -1);
+        void moveGroupRight(int group_id = -1);
+
+
         Q_SCRIPTABLE QString tabTitle(int sessionId);
         Q_SCRIPTABLE void setTabTitle(int sessionId, const QString& newTitle);
+        Q_SCRIPTABLE void setGroupTitle(int group_id, const QString& newTitle);
 
         Q_SCRIPTABLE int sessionAtTab(int index);
 
+        void addGroup(const QString& title = QStringLiteral(), bool locked = false);
+        void closeGroup();
+        void selectGroup(int group_id);
 
     Q_SIGNALS:
         void newTabRequested();
@@ -77,8 +99,8 @@ class TabBar : public QWidget
         void requestTerminalHighlight(int terminalId);
         void requestRemoveTerminalHighlight();
         void tabContextMenuClosed();
+        void groupContextMenuClosed();
         void lastTabClosed();
-
 
     protected:
         virtual void resizeEvent(QResizeEvent*);
@@ -112,22 +134,30 @@ class TabBar : public QWidget
     private:
         QString standardTabTitle();
         QString makeTabTitle(int number);
+        QString standardGroupTitle();
+        QString makeGroupTitle(int number);
         int tabAt(int x);
+        int groupAt(int x);
 
         void readyTabContextMenu();
+        void readyGroupContextMenu();
 
         void updateMoveActions(int index);
         void updateToggleActions(int sessionId);
+        void updateGroupToggleActions(int group_id);
         void updateToggleKeyboardInputMenu(int sessionId = -1);
         void updateToggleMonitorSilenceMenu(int sessionId = -1);
         void updateToggleMonitorActivityMenu(int sessionId = -1);
 
         int drawButton(int x, int y, int index, QPainter& painter);
+        int drawGroupButton(int x, int y, int index, QPainter& painter);
 
         void startDrag(int index);
         void drawDropIndicator(int index, bool disabled = false);
         int dropIndex(const QPoint pos);
         bool isSameTab(const QDropEvent*);
+
+        void _addGroup(const QString& title = QStringLiteral(), bool locked = false);
 
         MainWindow* m_mainWindow;
         Skin* m_skin;
@@ -135,7 +165,11 @@ class TabBar : public QWidget
         QToolButton* m_newTabButton;
         QPushButton* m_closeTabButton;
 
+        QToolButton* m_newGroupButton;
+        QPushButton* m_closeGroupButton;
+
         QMenu* m_tabContextMenu;
+        QMenu* m_groupContextMenu;
         QMenu* m_toggleKeyboardInputMenu;
         QMenu* m_toggleMonitorActivityMenu;
         QMenu* m_toggleMonitorSilenceMenu;
@@ -143,20 +177,30 @@ class TabBar : public QWidget
 
         QLineEdit* m_lineEdit;
         int m_renamingSessionId;
+        int m_renamingIndex;
 
-        QList<int> m_tabs;
+        //QList<int> m_tabs;
+        QList<TabGroup> m_groups;
+        QList<int> m_groupWidths;
+        int active_group;
+
         QHash<int, QString> m_tabTitles;
         QHash<int, bool> m_tabTitlesSetInteractive;
         QList<int> m_tabWidths;
 
         int m_selectedSessionId;
+        bool interactiveRename4Group;
 
         int m_mousePressed;
         int m_mousePressedIndex;
+        bool m_mousePressed4Group;
+        bool disable_groups_cfg_update;
 
         QPoint m_startPos;
         QLabel* m_dropIndicator;
         QRect m_dropRect;
+
+        void dbgQRect(const QString &name, const QRect &r);
 };
 
 #endif

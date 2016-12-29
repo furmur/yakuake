@@ -110,6 +110,7 @@ MainWindow::MainWindow(QWidget* parent)
     connect(m_tabBar, SIGNAL(requestTerminalHighlight(int)), m_sessionStack, SLOT(handleTerminalHighlightRequest(int)));
     connect(m_tabBar, SIGNAL(requestRemoveTerminalHighlight()), m_sessionStack, SIGNAL(removeTerminalHighlight()));
     connect(m_tabBar, SIGNAL(tabContextMenuClosed()), m_sessionStack, SIGNAL(removeTerminalHighlight()));
+    connect(m_tabBar, SIGNAL(groupContextMenuClosed()), m_sessionStack, SIGNAL(removeTerminalHighlight()));
 
     connect(m_sessionStack, SIGNAL(sessionAdded(int,QString)),
         m_tabBar, SLOT(addTab(int,QString)));
@@ -125,7 +126,8 @@ MainWindow::MainWindow(QWidget* parent)
 
     applySettings();
 
-    m_sessionStack->addSession();
+    //m_sessionStack->addSession();
+    m_tabBar->restoreGroupsFromSettings();
 
     if (Settings::firstRun())
     {
@@ -427,6 +429,49 @@ void MainWindow::setupActions()
     connect(action, SIGNAL(triggered(bool)), this, SLOT(handleContextDependentToggleAction(bool)));
     m_contextDependentActions << action;
 
+    action = actionCollection()->addAction(QStringLiteral("new-group"));
+    action->setText(i18nc("@action", "New Group"));
+    action->setIcon(QIcon(QStringLiteral("tab-new")));
+    connect(action, SIGNAL(triggered()), m_tabBar, SLOT(addGroup()));
+
+    action = actionCollection()->addAction(QStringLiteral("close-group"));
+    action->setText(i18nc("@action", "Close Group"));
+    action->setIcon(QIcon(QStringLiteral("tab-close")));
+    connect(action, SIGNAL(triggered()), m_tabBar, SLOT(closeGroup()));
+
+    action = actionCollection()->addAction(QStringLiteral("previous-group"));
+    action->setText(i18nc("@action", "Previous Group"));
+    action->setIcon(QIcon(QStringLiteral("go-previous")));
+    connect(action, SIGNAL(triggered()), m_tabBar, SLOT(selectPreviousGroup()));
+
+    action = actionCollection()->addAction(QStringLiteral("next-group"));
+    action->setText(i18nc("@action", "Next Group"));
+    action->setIcon(QIcon(QStringLiteral("go-next")));
+    connect(action, SIGNAL(triggered()), m_tabBar, SLOT(selectNextGroup()));
+
+    action = actionCollection()->addAction(QStringLiteral("move-group-left"));
+    action->setText(i18nc("@action", "Move Group Left"));
+    action->setIcon(QIcon(QStringLiteral("arrow-left")));
+    connect(action, SIGNAL(triggered()), m_tabBar, SLOT(moveGroupLeft()));
+    m_contextDependentActions << action;
+
+    action = actionCollection()->addAction(QStringLiteral("move-group-right"));
+    action->setText(i18nc("@action", "Move Group Right"));
+    action->setIcon(QIcon(QStringLiteral("arrow-right")));
+    connect(action, SIGNAL(triggered()), m_tabBar, SLOT(moveGroupRight()));
+    m_contextDependentActions << action;
+
+    action = actionCollection()->addAction(QStringLiteral("rename-group"));
+    action->setText(i18nc("@action", "Rename Group..."));
+    action->setIcon(QIcon(QStringLiteral("edit-rename")));
+    m_contextDependentActions << action;
+
+    action = actionCollection()->addAction(QStringLiteral("toggle-group-prevent-closing"));
+    action->setText(i18nc("@action", "Prevent Group Closing"));
+    action->setCheckable(true);
+    connect(action, SIGNAL(triggered(bool)), this, SLOT(handleContextDependentGroupToggleAction(bool)));
+    m_contextDependentActions << action;
+
     for (uint i = 1; i <= 10; ++i)
     {
         action = actionCollection()->addAction(QString(QStringLiteral("switch-to-session-%1")).arg(i));
@@ -508,6 +553,21 @@ void MainWindow::handleContextDependentToggleAction(bool checked, QAction* actio
         m_sessionStack->setSessionMonitorSilenceEnabled(sessionId, checked);
 }
 
+void MainWindow::handleContextDependentGroupAction(QAction* action, int group_id)
+{
+    UNUSED(action);
+    UNUSED(group_id);
+}
+
+void MainWindow::handleContextDependentGroupToggleAction(bool checked, QAction* action, int group_id)
+{
+    if (!action) action = qobject_cast<QAction*>(QObject::sender());
+    if (action == actionCollection()->action(QStringLiteral("toggle-group-prevent-closing"))) {
+        m_tabBar->setGroupLocked(group_id,checked);
+        m_tabBar->repaint();
+    }
+}
+
 void MainWindow::setContextDependentActionsQuiet(bool quiet)
 {
     QListIterator<QAction*> i(m_contextDependentActions);
@@ -586,8 +646,8 @@ void MainWindow::handleTerminalSilence(Terminal* terminal)
 
 void MainWindow::handleLastTabClosed()
 {
-    if (isVisible() && !Settings::keepOpenAfterLastSessionCloses())
-        toggleWindowState();
+    /*if (isVisible() && !Settings::keepOpenAfterLastSessionCloses())
+        toggleWindowState();*/
 }
 
 void MainWindow::handleSwitchToAction()

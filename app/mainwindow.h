@@ -29,11 +29,13 @@
 
 #include <QTimer>
 
+#define UNUSED(v) (void)(v)
 
 class FirstRunDialog;
 class SessionStack;
 class Skin;
 class TabBar;
+class TabBars;
 class Terminal;
 class TitleBar;
 
@@ -71,6 +73,8 @@ class MainWindow : public QMainWindow
     public Q_SLOTS:
         Q_SCRIPTABLE void toggleWindowState();
 
+        void handleContextDependentGroupAction(QAction* action = 0, int group_id = -1);
+        void handleContextDependentGroupToggleAction(bool checked, QAction* action = 0, int group_id = -1);
         void handleContextDependentAction(QAction* action = 0, int sessionId = -1);
         void handleContextDependentToggleAction(bool checked, QAction* action = 0, int sessionId = -1);
         void handleToggleTerminalKeyboardInput(bool checked);
