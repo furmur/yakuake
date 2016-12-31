@@ -14,7 +14,7 @@ include(ECMAddAppIcon)
 include(FeatureSummary)
 
 ### Security concerns about sendText and runCommand dbus methods being public
-option(REMOVE_SENDTEXT_RUNCOMMAND_DBUS_METHODS "yakuake: remove runCommand dbus methods" OFF)
+option(REMOVE_SENDTEXT_RUNCOMMAND_DBUS_METHODS "yakuake: remove runCommand dbus methods" ON)
 
 find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED Core Widgets)
 
