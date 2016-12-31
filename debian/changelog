@@ -1,3 +1,10 @@
+yakuake (3.0.2-1p2) unstable; urgency=medium
+
+  * c243944 add predefined layout support
+  * d3a06b6 fix tabs interactive renaming
+
+ -- Michael Furmur <m.furmur@gmail.com>  Sat, 31 Dec 2016 17:16:05 +0200
+
 yakuake (3.0.2-1p1) unstable; urgency=medium
 
   * add tabs grouping
