@@ -4,7 +4,7 @@ cmake_minimum_required (VERSION 2.8.12 FATAL_ERROR)
 set (QT_MIN_VERSION "5.2.0")
 
 find_package(ECM 1.2.0 REQUIRED NO_MODULE)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
 
 include(KDEInstallDirs)
 include(KDECMakeSettings)
@@ -35,6 +35,8 @@ find_package(KF5 5.15 REQUIRED
     WidgetsAddons
     WindowSystem
 )
+
+find_package(Confuse REQUIRED)
 
 if(NOT APPLE)
   find_package(X11)

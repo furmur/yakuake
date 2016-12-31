@@ -126,7 +126,6 @@ MainWindow::MainWindow(QWidget* parent)
 
     applySettings();
 
-    //m_sessionStack->addSession();
     m_tabBar->restoreGroupsFromSettings();
 
     if (Settings::firstRun())

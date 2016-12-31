@@ -27,7 +27,6 @@
 #include <QHash>
 #include <QWidget>
 
-
 class MainWindow;
 class Skin;
 
@@ -57,7 +56,6 @@ class TabBar : public QWidget
         void applySkin();
         void setGroupLocked(int group_id, bool locked);
 
-        void updateGroupsSettings();
         void restoreGroupsFromSettings();
 
     public Q_SLOTS:
@@ -179,7 +177,6 @@ class TabBar : public QWidget
         int m_renamingSessionId;
         int m_renamingIndex;
 
-        //QList<int> m_tabs;
         QList<TabGroup> m_groups;
         QList<int> m_groupWidths;
         int active_group;

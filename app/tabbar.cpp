@@ -26,6 +26,7 @@
 #include "session.h"
 #include "sessionstack.h"
 #include "settings.h"
+#include "layoutconfig.h"
 
 #include <KActionCollection>
 #include <KLocalizedString>
@@ -56,7 +57,7 @@ TabGroup::TabGroup(const QString &t, bool is_locked):
 
 TabBar::TabBar(MainWindow* mainWindow) : QWidget(mainWindow)
 {
-    //QDBusConnection::sessionBus().registerObject(QStringLiteral("/yakuake/tabs"), this, QDBusConnection::ExportScriptableSlots);
+    //QDBusConnection::sessionBus(.registerObject(QStringLiteral("/yakuake/tabs"), this, QDBusConnection::ExportScriptableSlots);
 
     setWhatsThis(xi18nc("@info:whatsthis",
                        "<title>Tab Bar</title>"
@@ -127,9 +128,6 @@ TabBar::TabBar(MainWindow* mainWindow) : QWidget(mainWindow)
     connect(m_lineEdit, SIGNAL(returnPressed()), this, SLOT(interactiveRenameDone()));
 
     setAcceptDrops(true);
-
-    //restoreGroupsFromSettings();
-    //if(!m_groups.count()) emit newTabRequested(); //instead of addSession on startup
 }
 
 TabBar::~TabBar()
@@ -165,50 +163,41 @@ void TabBar::setGroupLocked(int group_id, bool locked)
     if(group_id < 0 || group_id > m_groups.count() -1) return;
 
     m_groups[group_id].locked = locked;
-
-    //updateGroupsSettings();
-}
-
-void TabBar::updateGroupsSettings()
-{
-    /*if(disable_groups_cfg_update) return;
-
-    KSharedConfigPtr c = KGlobal::config();
-    KConfigGroup TabsConfigGroup = c.data()->group("TabsGroups");
-
-    TabsConfigGroup.deleteGroup();
-
-    QStringList tabs_order;
-    for(int index = 0;index < m_groups.count(); index++)
-    {
-        const TabGroup &tg = m_groups.at(index);
-        if(tg.locked) //save only locked groups
-        {
-            tabs_order.append(QString::number(index));
-            TabsConfigGroup.writeEntry("group_"+QString::number(index),tg.title);
-        }
-    }
-    TabsConfigGroup.writeEntry("order",tabs_order);
-    TabsConfigGroup.config()->sync();*/
 }
 
 void TabBar::restoreGroupsFromSettings()
 {
-    /*KSharedConfigPtr c = KGlobal::config();
-    KConfigGroup TabsConfigGroup = c.data()->group("TabsGroups");
-
-    disable_groups_cfg_update = true;
-    QStringList tabs_order = TabsConfigGroup.readEntry("order",QStringList());
-    for(QStringList::const_iterator i = tabs_order.begin();
-        i!=tabs_order.end();++i)
-    {
-        QString title = TabsConfigGroup.readEntry("group_"+*i,QString());
-        if(title.isEmpty()) continue;
-        addGroup(title,true);
+    LayoutConfig l;
+    if(!l.read()) {
+        emit newTabRequested();
+        return;
     }
-    disable_groups_cfg_update = false;*/
+
+    for(const auto &group : l.groups()) {
+        //create group
+        m_groups.append(TabGroup(group.name,group.locked));
+        active_group = m_groups.size()-1;
+
+        //create tabs
+        TabGroup &g = m_groups.back();
+        if(group.tabs.empty()) {
+            emit newTabRequested();
+            continue;
+        }
+        SessionStack* sessionStack = m_mainWindow->sessionStack();
+        for(const auto &tab: group.tabs) {
+            emit newTabRequested();
+            if(tab.name!=QStringLiteral("auto")) {
+                setTabTitleInteractive(m_selectedSessionId, tab.name);
+            }
+            if(!tab.exec.isEmpty())
+                sessionStack->runCommand(tab.exec);
+        }
+        g.selected_tab = group.selected_tab;
+    }
+
     if(m_groups.count())
-        selectGroup(0);
+        selectGroup(l.active_group());
     else
         emit newTabRequested();
 }
@@ -1219,8 +1208,6 @@ void TabBar::moveGroupLeft(int group_id)
     m_groups.swap(group_id,group_id-1);
     selectGroup(group_id-1);
 
-    //updateGroupsSettings();
-
     repaint();
 }
 
@@ -1231,8 +1218,6 @@ void TabBar::moveGroupRight(int group_id)
 
     m_groups.swap(group_id,group_id+1);
     selectGroup(group_id+1);
-
-    //updateGroupsSettings();
 
     repaint();
 }
@@ -1285,7 +1270,6 @@ void TabBar::setGroupTitle(int group_id, const QString& newTitle)
     if (!newTitle.isEmpty())
         m_groups[group_id].title = newTitle;
 
-    //updateGroupsSettings();
     update();
 }
 
@@ -1307,7 +1291,6 @@ void TabBar::_addGroup(const QString& title, bool locked)
 
     active_group = m_groups.size()-1;
     updateGroupToggleActions(active_group);
-    //updateGroupsSettings();
 }
 
 void TabBar::addGroup(const QString& title, bool locked)
@@ -1339,8 +1322,6 @@ void TabBar::closeGroup()
     m_groupWidths.removeAt(active_group);
     selectGroup(next_group);
     setUpdatesEnabled(true);
-
-    //updateGroupsSettings();
 
     //close sessions
     for(int index = 0; index < m_tabs.size(); index++){

@@ -12,6 +12,7 @@ set(yakuake_SRCS
     splitter.cpp
     firstrundialog.cpp
     visualeventoverlay.cpp
+    layoutconfig.cpp
     config/windowsettings.cpp
     config/appearancesettings.cpp
     config/skinlistdelegate.cpp
@@ -47,7 +48,9 @@ target_link_libraries(yakuake
     KF5::NotifyConfig
     KF5::Parts
     KF5::WidgetsAddons
-    KF5::WindowSystem)
+    KF5::WindowSystem
+    ${Confuse_LIBRARIES}
+)
 
 if(X11_FOUND)
   target_link_libraries(yakuake Qt5::X11Extras ${X11_X11_LIB})
