@@ -1109,7 +1109,7 @@ void TabBar::interactiveGroupRename(int group_id)
 void TabBar::interactiveRenameDone()
 {
     if(!interactiveRename4Group)
-        setTabTitle(m_renamingIndex, m_lineEdit->text().trimmed());
+        setTabTitleInteractive(m_renamingIndex, m_lineEdit->text().trimmed());
     else
         setGroupTitle(m_renamingIndex, m_lineEdit->text().trimmed());
     m_renamingIndex = -1;
