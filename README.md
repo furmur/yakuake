@@ -10,7 +10,7 @@ major differences from the original project
 -------------------------------------------
 
 * tabs are grouped (to make life easier for those who really need a lot of tabs)
-* predefined layout ([example](blob/master/examples/.yakuake_layout))
+* predefined layout ([example](examples/.yakuake_layout))
 
 install from packages (Debian/stretch)
 --------------------------------------
