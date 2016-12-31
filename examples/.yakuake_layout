@@ -1,0 +1,42 @@
+/*
+ * ~/.yakuake_layout configuration file example
+ *
+ * syntax:
+ *    tabs groups are defined as 'group' named sections
+ *
+ *    possible 'group' section items:
+ *        * locked(boolean)    set locked flag for the group. default: true
+ *        * selected(boolean)  set tabs group as selected. default: false
+ *        * tab(named section) define tab within group.
+ *
+ *    possible 'tab' section items:
+ *        * selected(boolean)  set tab as selected. default: false
+ *        * exec(string)       run command after tab creation. default: empty
+ *
+ *    note: you can use name 'auto' for section 'tab' to use automatic tab name instead of explicit assigning
+ */
+
+group g1 {}
+
+group g2 {
+    tab t1 {}
+    tab auto {
+        exec = htop
+        selected = true
+    }
+    tab t3 {
+        exec = top
+    }
+}
+
+group g3 {
+    locked = false
+    selected = true
+    tab t4 {}
+    tab auto {}
+}
+
+group g4 {
+    tab t6 {}
+    tab t7 {}
+}
