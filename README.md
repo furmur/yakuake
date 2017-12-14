@@ -12,18 +12,18 @@ major differences from the original project
 * tabs are grouped (to make life easier for those who really need a lot of tabs)
 * predefined layout ([example](examples/.yakuake_layout))
 
-install from packages (Debian/stretch)
+install from packages (Debian/buster)
 --------------------------------------
 
 ```bash
-# echo "deb https://furmur.org/debian stretch main" > /etc/apt/sources.list.d/furmur.list
+# echo "deb https://furmur.org/debian buster main" > /etc/apt/sources.list.d/furmur.list
 # apt install apt-transport-https
 # wget -O - https://furmur.org/debian/key.gpg | apt-key add -
 # apt update
 # apt install yakuake-octopus
 ```
 
-build pkg from the sources (Debian/stretch)
+build pkg from the sources (Debian)
 -------------------------------------------
 
 ```bash
