@@ -54,6 +54,7 @@
 #include <QWhatsThis>
 #include <QWindow>
 #include <QtDBus/QtDBus>
+#include <QtDebug>
 
 #if HAVE_X11
 #include <QX11Info>
@@ -69,6 +70,7 @@
 #include <KWayland/Client/plasmashell.h>
 #endif
 
+#define dbg_var(var)  qDebug() << __func__ << #var << var
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent, Qt::CustomizeWindowHint | Qt::FramelessWindowHint)
@@ -892,6 +894,8 @@ void MainWindow::applyWindowGeometry()
 {
     int width, height;
 
+    qDebug() << __func__;
+
     QAction* action = actionCollection()->action(QStringLiteral("view-full-screen"));
 
     if (action->isChecked())
@@ -910,11 +914,23 @@ void MainWindow::applyWindowGeometry()
 
 void MainWindow::setWindowGeometry(int newWidth, int newHeight, int newPosition)
 {
+    qDebug() << __func__ << '(' << newWidth << ", " << newHeight << ", " << newPosition << ')';
+
     QRect workArea = getDesktopGeometry();
 
+    dbg_var(workArea);
+
     int maxHeight = workArea.height() * newHeight / 100;
+    dbg_var(maxHeight);
 
     int targetWidth = workArea.width() * newWidth / 100;
+    dbg_var(targetWidth);
+
+    qDebug() << __func__ << "setGeometry(" <<
+        workArea.x() + workArea.width() * newPosition * (100 - newWidth) / 10000 << "," <<
+        workArea.y() << "," <<
+        targetWidth << "," <<
+        maxHeight << ")";
 
     setGeometry(workArea.x() + workArea.width() * newPosition * (100 - newWidth) / 10000,
                 workArea.y(), targetWidth, maxHeight);
@@ -1413,28 +1429,45 @@ void MainWindow::setFullScreen(bool state)
 
 int MainWindow::getScreen()
 {
-    if (!Settings::screen())
-        return QApplication::desktop()->screenNumber(QCursor::pos());
-    else
-        return Settings::screen() - 1;
+    qDebug() << __func__;
+
+    int ret;
+
+    if (!Settings::screen()) {
+        qDebug() << __func__ << "if (!Settings::screen()) {";
+        ret = QApplication::desktop()->screenNumber(QCursor::pos());
+    } else {
+        qDebug() << __func__ << "if (!Settings::screen()) else {";
+        ret = Settings::screen() - 1;
+    }
+    qDebug() << __func__ << "=" << ret;
+    return ret;
 }
 
 QRect MainWindow::getDesktopGeometry()
 {
+    qDebug() << __func__;
+
+    QRect ret;
     QRect screenGeometry = QApplication::desktop()->screenGeometry(getScreen());
+    dbg_var(screenGeometry);
 
     QAction* action = actionCollection()->action(QStringLiteral("view-full-screen"));
 
-    if (action->isChecked())
+    if (action->isChecked()) {
+        qDebug() << __func__ << "if (action->isChecked()) {";
         return screenGeometry;
+    }
 
     if (m_isWayland) {
         // on Wayland it's not possible to get the work area
+        qDebug() << __func__ << "if (m_isWayland) {";
         return screenGeometry;
     }
 
     if (QApplication::desktop()->screenCount() > 1)
     {
+        qDebug() << __func__ << "if (QApplication::desktop()->screenCount() > 1) {";
         const QList<WId> allWindows = KWindowSystem::windows();
         QList<WId> offScreenWindows;
 
@@ -1442,16 +1475,21 @@ QRect MainWindow::getDesktopGeometry()
 
         while (i.hasNext())
         {
+            qDebug() << __func__ << "while (i.hasNext())";
+
             WId windowId = i.next();
+            dbg_var(windowId);
 
             if (KWindowSystem::hasWId(windowId))
             {
+                qDebug() << __func__ << "if (KWindowSystem::hasWId(windowId))";
                 KWindowInfo windowInfo = KWindowInfo(windowId, NET::WMDesktop, NET::WM2ExtendedStrut);
 
                 // If windowInfo is valid and the window is located at the same (current)
                 // desktop with the yakuake window...
                 if (windowInfo.valid() && windowInfo.isOnCurrentDesktop())
                 {
+                    qDebug() << __func__ << "if (windowInfo.valid() && windowInfo.isOnCurrentDesktop())";
                     NETExtendedStrut strut = windowInfo.extendedStrut();
 
                     // Get the area covered by each strut.
@@ -1462,28 +1500,42 @@ QRect MainWindow::getDesktopGeometry()
                     QRect rightStrut(screenGeometry.right() - strut.right_width, strut.right_start,
                                      strut.right_end - strut.right_start, strut.right_width);
 
+                    dbg_var(topStrut);
+                    dbg_var(bottomStrut);
+                    dbg_var(leftStrut);
+                    dbg_var(rightStrut);
+
                     // If the window has no strut, no need to bother further.
-                    if (topStrut.isEmpty() && bottomStrut.isEmpty() && leftStrut.isEmpty() && rightStrut.isEmpty())
+                    if (topStrut.isEmpty() && bottomStrut.isEmpty() && leftStrut.isEmpty() && rightStrut.isEmpty()) {
+                        qDebug() << __func__ << "if (topStrut.isEmpty() && bottomStrut.isEmpty() && leftStrut.isEmpty() && rightStrut.isEmpty()) {";
                         continue;
+                    }
 
                     // If any of the strut intersects with our screen geometry, it will be correctly handled
                     // by workArea().
                     if (topStrut.intersects(screenGeometry) || bottomStrut.intersects(screenGeometry) ||
                         leftStrut.intersects(screenGeometry) || rightStrut.intersects(screenGeometry))
+                    {
+                        qDebug() << __func__ << "if (topStrut.intersects(screenGeometry) ... ";
                         continue;
+                    }
 
                     // This window has a strut on the same desktop as us but which does not cover our screen
                     // geometry. It should be ignored, otherwise the returned work area will wrongly include
                     // the strut.
                     offScreenWindows << windowId;
+                    dbg_var(offScreenWindows);
                 }
             }
         }
 
-        return KWindowSystem::workArea(offScreenWindows).intersected(screenGeometry);
+        ret = KWindowSystem::workArea(offScreenWindows).intersected(screenGeometry);
+    } else {
+        qDebug() << __func__ << "if (QApplication::desktop()->screenCount() > 1) else {";
+        ret = KWindowSystem::workArea();
     }
-
-    return KWindowSystem::workArea();
+    dbg_var(ret);
+    return ret;
 }
 
 void MainWindow::whatsThis()
