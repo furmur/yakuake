@@ -336,17 +336,31 @@ void MainWindow::setupActions()
     connect(action, SIGNAL(triggered()), this, SLOT(handleContextDependentAction()));
     m_contextDependentActions << action;
 
+    action = actionCollection()->addAction(QStringLiteral("move-session-left-group"));
+    action->setText(xi18nc("@action", "Move Session to the Left Group cyclic"));
+    action->setIcon(QIcon(QStringLiteral("arrow-left")));
+    action->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Left));
+    connect(action, SIGNAL(triggered()), this, SLOT(handleContextDependentAction()));
+    m_contextDependentActions << action;
+
+    action = actionCollection()->addAction(QStringLiteral("move-session-right-group"));
+    action->setText(xi18nc("@action", "Move Session to the Right Group cyclic"));
+    action->setIcon(QIcon(QStringLiteral("arrow-right")));
+    action->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Right));
+    connect(action, SIGNAL(triggered()), this, SLOT(handleContextDependentAction()));
+    m_contextDependentActions << action;
+
     action = actionCollection()->addAction(QStringLiteral("grow-terminal-right"));
     action->setText(xi18nc("@action", "Grow Terminal to the Right"));
     action->setIcon(QIcon(QStringLiteral("arrow-right")));
-    action->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Right));
+    //action->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Right));
     connect(action, SIGNAL(triggered()), this, SLOT(handleContextDependentAction()));
     m_contextDependentActions << action;
 
     action = actionCollection()->addAction(QStringLiteral("grow-terminal-left"));
     action->setText(xi18nc("@action", "Grow Terminal to the Left"));
     action->setIcon(QIcon(QStringLiteral("arrow-left")));
-    action->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Left));
+    //action->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Left));
     connect(action, SIGNAL(triggered()), this, SLOT(handleContextDependentAction()));
     m_contextDependentActions << action;
 
@@ -503,6 +517,12 @@ void MainWindow::handleContextDependentAction(QAction* action, int sessionId)
 
     if (action == actionCollection()->action(QStringLiteral("move-session-right")))
         m_tabBar->moveTabRight(sessionId);
+
+    if (action == actionCollection()->action(QStringLiteral("move-session-left-group")))
+        m_tabBar->moveTabLeftGroup(sessionId);
+
+    if (action == actionCollection()->action(QStringLiteral("move-session-right-group")))
+        m_tabBar->moveTabRightGroup(sessionId);
 
     if (action == actionCollection()->action(QStringLiteral("rename-session")))
         m_tabBar->interactiveRename(sessionId);
