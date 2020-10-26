@@ -55,7 +55,7 @@ void cfg_reader_error(cfg_t *cfg, const char *fmt, va_list ap)
 }
 
 LayoutConfig::LayoutConfig()
-  : _path(QDir::homePath()+QStringLiteral("/.yakuake_layout")),
+  : _path(QDir::homePath()+QStringLiteral("/.config/.yakuake_layout")),
     _selected_group(0)
 { }
 
