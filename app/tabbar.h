@@ -75,9 +75,11 @@ class TabBar : public QWidget
         void moveTabLeft(int sessionId = -1);
         void moveTabRight(int sessionId = -1);
 
+        void moveTabLeftGroup(int sessionId = -1);
+        void moveTabRightGroup(int sessionId = -1);
+
         void moveGroupLeft(int group_id = -1);
         void moveGroupRight(int group_id = -1);
-
 
         Q_SCRIPTABLE QString tabTitle(int sessionId);
         Q_SCRIPTABLE void setTabTitle(int sessionId, const QString& newTitle);

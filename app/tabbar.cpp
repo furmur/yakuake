@@ -219,6 +219,9 @@ void TabBar::readyTabContextMenu()
         m_tabContextMenu->addAction(m_mainWindow->actionCollection()->action(QStringLiteral("move-session-left")));
         m_tabContextMenu->addAction(m_mainWindow->actionCollection()->action(QStringLiteral("move-session-right")));
         m_tabContextMenu->addSeparator();
+        m_tabContextMenu->addAction(m_mainWindow->actionCollection()->action(QStringLiteral("move-session-left-group")));
+        m_tabContextMenu->addAction(m_mainWindow->actionCollection()->action(QStringLiteral("move-session-right-group")));
+        m_tabContextMenu->addSeparator();
         m_tabContextMenu->addAction(m_mainWindow->actionCollection()->action(QStringLiteral("close-active-terminal")));
         m_tabContextMenu->addAction(m_mainWindow->actionCollection()->action(QStringLiteral("close-session")));
     }
@@ -1198,6 +1201,50 @@ void TabBar::moveTabRight(int sessionId)
     repaint();
 
     updateMoveActions(index + 1);
+}
+
+void TabBar::moveTabLeftGroup(int sessionId)
+{
+    if(m_groups.size() == 1) return;
+    if (sessionId == -1) sessionId = m_selectedSessionId;
+
+    auto &active_tab_group = m_groups[active_group];
+    auto dst_group_index = active_group==0 ? m_groups.size()-1 : active_group-1;
+    auto &dst_tab_group = m_groups[dst_group_index];
+    auto active_tab_index = active_tab_group.tabs.indexOf(sessionId);
+
+    dst_tab_group.tabs.push_back(active_tab_group.tabs[active_tab_index]);
+    dst_tab_group.selected_tab = dst_tab_group.tabs.size()-1;
+
+    active_tab_group.tabs.removeAt(active_tab_index);
+    if(active_tab_group.selected_tab > active_tab_group.tabs.size() - 1)
+        active_tab_group.selected_tab = active_tab_group.tabs.size() - 1;
+
+    selectGroup(dst_group_index);
+
+    repaint();
+}
+
+void TabBar::moveTabRightGroup(int sessionId)
+{
+    if(m_groups.size() == 1) return;
+    if (sessionId == -1) sessionId = m_selectedSessionId;
+
+    auto &active_tab_group = m_groups[active_group];
+    auto dst_group_index = active_group >= (m_groups.size()-1) ? 0 : active_group + 1;
+    auto &dst_tab_group = m_groups[dst_group_index];
+    auto active_tab_index = active_tab_group.tabs.indexOf(sessionId);
+
+    dst_tab_group.tabs.push_back(active_tab_group.tabs[active_tab_index]);
+    dst_tab_group.selected_tab = dst_tab_group.tabs.size()-1;
+
+    active_tab_group.tabs.removeAt(active_tab_index);
+    if(active_tab_group.selected_tab > active_tab_group.tabs.size() - 1)
+        active_tab_group.selected_tab = active_tab_group.tabs.size() - 1;
+
+    selectGroup(dst_group_index);
+
+    repaint();
 }
 
 void TabBar::moveGroupLeft(int group_id)
